@@ -1,11 +1,6 @@
-import crypto from 'node:crypto';
+import '../crypto-polyfill.js';
 import mongoose from 'mongoose';
 import dns from 'dns';
-
-// MongoDB driver requires Web Crypto API for SCRAM auth
-if (typeof globalThis.crypto === 'undefined') {
-  globalThis.crypto = crypto.webcrypto;
-}
 
 if (process.platform === 'win32') {
   dns.setDefaultResultOrder('ipv4first');

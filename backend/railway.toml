@@ -1,8 +1,11 @@
 [build]
 builder = "NIXPACKS"
 
+[build.env]
+NIXPACKS_NODE_VERSION = "20"
+
 [deploy]
-startCommand = "node server.js"
+startCommand = "node --import ./crypto-polyfill.js server.js"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"

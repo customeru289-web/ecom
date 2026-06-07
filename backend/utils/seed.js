@@ -1,3 +1,4 @@
+import '../crypto-polyfill.js';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import dns from 'dns';
