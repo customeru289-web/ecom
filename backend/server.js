@@ -68,12 +68,16 @@ app.use('/api', limiter);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+let lastDbError = null;
+
 app.get('/api/health', (req, res) => {
   const dbState = mongoose.connection.readyState;
   res.json({
     success: true,
     message: 'Luxora API is running',
     db: dbState === 1 ? 'connected' : 'disconnected',
+    dbConfigured: Boolean(process.env.MONGO_URI),
+    ...(lastDbError && dbState !== 1 ? { hint: lastDbError.split('\n')[0] } : {}),
     timestamp: new Date().toISOString(),
   });
 });
@@ -98,6 +102,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Luxora server running on port ${PORT}`);
   connectDB().catch((err) => {
+    lastDbError = err.message;
     console.error('MongoDB connection failed:', err.message);
   });
 });

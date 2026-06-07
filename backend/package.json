@@ -10,7 +10,7 @@
     "seed": "node utils/seed.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": "20.x"
   },
   "keywords": ["ecommerce", "api"],
   "author": "",
