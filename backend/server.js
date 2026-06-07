@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
@@ -26,9 +27,8 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-connectDB();
-
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 const allowedOrigins = (process.env.CLIENT_URL || '')
@@ -36,19 +36,23 @@ const allowedOrigins = (process.env.CLIENT_URL || '')
   .map((o) => o.trim())
   .filter(Boolean);
 
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+  if (/^https:\/\/[\w-]+\.vercel\.app$/.test(origin)) return true;
+  return false;
+};
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? (origin, callback) => {
-        if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      }
-    : (origin, callback) => {
-        if (!origin || /^http:\/\/localhost:\d+$/.test(origin)) callback(null, true);
-        else callback(null, allowedOrigins[0] || 'http://localhost:5173');
-      },
+  origin: (origin, callback) => {
+    if (process.env.NODE_ENV !== 'production') {
+      if (!origin || /^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
+      return callback(null, allowedOrigins[0] || 'http://localhost:5173');
+    }
+    if (isAllowedOrigin(origin)) return callback(null, true);
+    console.warn('CORS blocked origin:', origin);
+    return callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -65,7 +69,13 @@ app.use('/api', limiter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'Luxora API is running', timestamp: new Date().toISOString() });
+  const dbState = mongoose.connection.readyState;
+  res.json({
+    success: true,
+    message: 'Luxora API is running',
+    db: dbState === 1 ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.use('/api/auth', authRoutes);
@@ -85,8 +95,11 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Luxora server running on port ${PORT}`);
+  connectDB().catch((err) => {
+    console.error('MongoDB connection failed:', err.message);
+  });
 });
 
 export default app;
