@@ -76,7 +76,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'Luxora API is running',
-    version: '2026-06-08-crypto-v2',
+    version: '2026-06-08-crypto-v3',
     node: process.version,
     crypto: Boolean(globalThis.crypto?.subtle),
     db: dbState === 1 ? 'connected' : 'disconnected',
