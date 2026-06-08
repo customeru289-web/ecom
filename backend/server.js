@@ -76,6 +76,9 @@ app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'Luxora API is running',
+    version: '2026-06-08-crypto-v2',
+    node: process.version,
+    crypto: Boolean(globalThis.crypto?.subtle),
     db: dbState === 1 ? 'connected' : 'disconnected',
     dbConfigured: Boolean(process.env.MONGO_URI),
     ...(lastDbError && dbState !== 1 ? { hint: lastDbError.split('\n')[0] } : {}),
