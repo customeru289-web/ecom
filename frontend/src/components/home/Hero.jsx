@@ -9,16 +9,18 @@ const Hero = () => {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    contentAPI.getBanners().then(({ data }) => setBanners(data.banners)).catch(() => {});
+    contentAPI.getBanners().then(({ data }) => setBanners(data?.banners ?? [])).catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (banners.length <= 1) return;
-    const timer = setInterval(() => setCurrent((c) => (c + 1) % banners.length), 6000);
-    return () => clearInterval(timer);
-  }, [banners.length]);
+  const bannerList = banners ?? [];
 
-  const banner = banners[current] || {
+  useEffect(() => {
+    if (bannerList.length <= 1) return;
+    const timer = setInterval(() => setCurrent((c) => (c + 1) % bannerList.length), 6000);
+    return () => clearInterval(timer);
+  }, [bannerList.length]);
+
+  const banner = bannerList[current] || {
     title: 'Luxury Redefined',
     subtitle: 'Discover our exclusive collection of premium timepieces and jewelry',
     image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600',
@@ -57,9 +59,9 @@ const Hero = () => {
         </motion.div>
       </div>
 
-      {banners.length > 1 && (
+      {bannerList.length > 1 && (
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-          {banners.map((_, i) => (
+          {bannerList.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}

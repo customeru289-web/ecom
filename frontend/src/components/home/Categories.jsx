@@ -8,7 +8,7 @@ const Categories = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    categoryAPI.getAll().then(({ data }) => setCategories(data.categories)).catch(() => {});
+    categoryAPI.getAll().then(({ data }) => setCategories(data?.categories ?? [])).catch(() => {});
   }, []);
 
   return (

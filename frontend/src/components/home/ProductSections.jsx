@@ -11,7 +11,7 @@ const ProductSection = ({ title, subtitle, fetchFn, viewAllLink }) => {
 
   useEffect(() => {
     fetchFn()
-      .then(({ data }) => setProducts(data.products))
+      .then(({ data }) => setProducts(Array.isArray(data?.products) ? data.products : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [fetchFn]);

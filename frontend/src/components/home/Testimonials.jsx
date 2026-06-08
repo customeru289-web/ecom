@@ -8,10 +8,10 @@ const Testimonials = () => {
   const [testimonials, setTestimonials] = useState([]);
 
   useEffect(() => {
-    contentAPI.getTestimonials().then(({ data }) => setTestimonials(data.testimonials)).catch(() => {});
+    contentAPI.getTestimonials().then(({ data }) => setTestimonials(data?.testimonials ?? [])).catch(() => {});
   }, []);
 
-  if (!testimonials.length) return null;
+  if (!testimonials?.length) return null;
 
   return (
     <section className="py-16 md:py-24 bg-zinc-100/50 dark:bg-zinc-900/30">

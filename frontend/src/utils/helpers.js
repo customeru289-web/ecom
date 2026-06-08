@@ -6,8 +6,10 @@ export const formatDate = (date) =>
 
 export const getImageUrl = (path) => {
   if (!path) return 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400';
-  if (path.startsWith('http')) return path;
-  return path.startsWith('/') ? path : `/${path}`;
+  const value = Array.isArray(path) ? path[0] : path;
+  if (!value) return 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400';
+  if (value.startsWith('http')) return value;
+  return value.startsWith('/') ? value : `/${value}`;
 };
 
 export const slugify = (text) =>
